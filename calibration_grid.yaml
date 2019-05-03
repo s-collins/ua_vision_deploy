@@ -1,0 +1,25 @@
+col_step: 200
+num_cols: 5
+num_rows: 4
+points:
+- {col_pixel: 0, row_pixel: 0, x_cm: -100, y_cm: 300}
+- {col_pixel: 200, row_pixel: 0, x_cm: -50, y_cm: 300}
+- {col_pixel: 400, row_pixel: 0, x_cm: 50, y_cm: 300}
+- {col_pixel: 600, row_pixel: 0, x_cm: 100, y_cm: 300}
+- {col_pixel: 640, row_pixel: 0, x_cm: 120, y_cm: 300}
+- {col_pixel: 0, row_pixel: 200, x_cm: -100, y_cm: 200}
+- {col_pixel: 200, row_pixel: 200, x_cm: -50, y_cm: 200}
+- {col_pixel: 400, row_pixel: 200, x_cm: 50, y_cm: 200}
+- {col_pixel: 600, row_pixel: 200, x_cm: 100, y_cm: 200}
+- {col_pixel: 640, row_pixel: 200, x_cm: 120, y_cm: 200}
+- {col_pixel: 0, row_pixel: 400, x_cm: -100, y_cm: 100}
+- {col_pixel: 200, row_pixel: 400, x_cm: -50, y_cm: 100}
+- {col_pixel: 400, row_pixel: 400, x_cm: 50, y_cm: 100}
+- {col_pixel: 600, row_pixel: 400, x_cm: 100, y_cm: 100}
+- {col_pixel: 640, row_pixel: 400, x_cm: 120, y_cm: 100}
+- {col_pixel: 0, row_pixel: 480, x_cm: -100, y_cm: 50}
+- {col_pixel: 200, row_pixel: 480, x_cm: -50, y_cm: 50}
+- {col_pixel: 400, row_pixel: 480, x_cm: 50, y_cm: 50}
+- {col_pixel: 600, row_pixel: 480, x_cm: 100, y_cm: 50}
+- {col_pixel: 640, row_pixel: 480, x_cm: 120, y_cm: 50}
+row_step: 200
