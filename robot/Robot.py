@@ -23,7 +23,7 @@ class Robot:
         self.obstacles = []
 
     def add_obstacle(self, obstacle):
-                if (len(self.obstacles) >= FT_ROBOT_MAX_NUM_OBSTACLES):
+        if (len(self.obstacles) >= FT_ROBOT_MAX_NUM_OBSTACLES):
             return
         self.obstacles.append(obstacle)
 
@@ -34,15 +34,15 @@ class Robot:
         num_obstacles = len(self.obstacles)
 
         # construct the header
-                length = 3 * (2 * num_obstacles + 1)
+        length = 3 * (2 * num_obstacles + 1)
         header = [0x06, 0x85, FT_VISION_SYSTEM_ADDRESS, FT_ROBOT_ADDRESS, length]
 
         # construct the payload
         payload = []
         index = FT_ROBOT_HEAD_INDEX
         payload.append(index)
-                payload.append(0)
-                payload.append(num_obstacles)
+        payload.append(0)
+        payload.append(num_obstacles)
         for obstacle in self.obstacles:
             # add x-coordinate
             index += 1

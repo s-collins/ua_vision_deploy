@@ -21,10 +21,10 @@ from robot import Robot
 #-------------------------------------------------------------------------------
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
-PATH_TO_FROZEN_GRAPH = 'trained_model/frozen_inference_graph.pb'
+PATH_TO_FROZEN_GRAPH = '/home/pi/ssd_mobilenet_trained_model/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = 'trained_model/label_map.pbtxt'
+PATH_TO_LABELS = '/home/pi/ssd_mobilenet_trained_model/label_map.pbtxt'
 
 # Path to the file containing the calibration grid
 PATH_TO_CALIBRATION_GRID = 'calibration_grid.yaml'
@@ -32,6 +32,8 @@ PATH_TO_CALIBRATION_GRID = 'calibration_grid.yaml'
 #-------------------------------------------------------------------------------
 # Initialization
 #-------------------------------------------------------------------------------
+
+print("Opening Detection Graph")
 
 # Load frozen Tensorflow model into memory
 detection_graph = tf.Graph()
@@ -98,11 +100,11 @@ if __name__ == '__main__':
   # camera object
   capture = cv2.VideoCapture(0)
 
-  # robot communications
-  robot = Robot()
+  # communications
+  audree = Robot.Robot()
 
   # calibration grid
-  grid = Grid(PATH_TO_CALIBRATION_GRID)
+  grid = Grid.Grid(PATH_TO_CALIBRATION_GRID)
 
   # start detecting obstacles
   with detection_graph.as_default():
@@ -111,6 +113,7 @@ if __name__ == '__main__':
 
         # break if camera failure
         if not capture.isOpened():
+          print("Could not open camera")
           break
 
         # flush the camera buffer
