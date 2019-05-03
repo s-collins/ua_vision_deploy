@@ -62,6 +62,8 @@ class Robot:
 		# send the packet
 		self.__send_packet(packet)
 
+		self.obstacles.clear()
+
 	def __crc(self, payload):
 		POLYNOMIAL = 0x8C
 		value = 0
