@@ -1,5 +1,5 @@
 import serial
-serialport = serial.Serial("serial0", baudrate=115200, timeout=3.0)
+serialport = serial.Serial("/dev/serial0", baudrate=115200, timeout=3.0)
 
 #-------------------------------------------------------------------------------
 # FastTransfer configuration
@@ -23,7 +23,7 @@ class Robot:
 		self.obstacles = []
 
 	def add_obstacle(self, obstacle):
-		if (len(self.obstacles >= FT_ROBOT_MAX_NUM_OBSTACLES))
+                if (len(self.obstacles) >= FT_ROBOT_MAX_NUM_OBSTACLES):
 			return
 		self.obstacles.append(obstacle)
 
@@ -34,12 +34,15 @@ class Robot:
 		num_obstacles = len(self.obstacles)
 
 		# construct the header
-		header = [0x06, 0x85, FT_VISION_SYSTEM_ADDRESS, FT_ROBOT_ADDRESS, 3 * num_obstacles]
+                length = 3 * (2 * num_obstacles + 1)
+		header = [0x06, 0x85, FT_VISION_SYSTEM_ADDRESS, FT_ROBOT_ADDRESS, length]
 
 		# construct the payload
 		payload = []
 		index = FT_ROBOT_HEAD_INDEX
-		payload.append(index, 0, num_obstacles)
+		payload.append(index)
+                payload.append(0)
+                payload.append(num_obstacles)
 		for obstacle in self.obstacles:
 			# add x-coordinate
 			index += 1
@@ -57,12 +60,12 @@ class Robot:
 		crc = self.__crc(payload)
 
 		# construct the packet
-		packet = header + payload + crc
+		packet = header + payload + [crc]
 
 		# send the packet
 		self.__send_packet(packet)
 
-		self.obstacles.clear()
+		self.obstacles = []
 
 	def __crc(self, payload):
 		POLYNOMIAL = 0x8C
@@ -73,7 +76,7 @@ class Robot:
 			for j in range(8):
 				sum = (value ^ data) & 0x01
 				value >>= 1
-				if (sum)
+                                if (sum):
 					value ^= POLYNOMIAL
 				data >>= 1
 		return value
