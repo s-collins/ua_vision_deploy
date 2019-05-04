@@ -1,12 +1,6 @@
 import numpy as np
-#import six.moves.urllib as urllib
 import sys
-#import tarfile
 import tensorflow as tf
-#import zipfile
-#from distutils.version import StrictVersion
-#from collections import defaultdict
-#from io import StringIO
 from object_detection.utils import ops as utils_ops
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
@@ -19,6 +13,9 @@ from robot import Robot
 #-------------------------------------------------------------------------------
 # Configuration
 #-------------------------------------------------------------------------------
+
+# minimum acceptable detection score (to be detected as obstacle)
+MINIMUM_DETECTION_SCORE = 0.90
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
 PATH_TO_FROZEN_GRAPH = '/home/pi/ssd_mobilenet_trained_model/frozen_inference_graph.pb'
@@ -52,8 +49,6 @@ category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABE
 #-------------------------------------------------------------------------------
 
 def run_inference_for_single_image(image, graph, sess):
-  #with graph.as_default():
-    #with tf.Session() as sess:
   # Get handles to input and output tensors
   ops = tf.get_default_graph().get_operations()
   all_tensor_names = {output.name for op in ops for output in op.outputs}
@@ -88,8 +83,11 @@ def run_inference_for_single_image(image, graph, sess):
 
   # all outputs are float32 numpy arrays, so convert types as appropriate
   output_dict['num_detections'] = int(output_dict['num_detections'][0])
+  output_dict['detection_classes'] = output_dict['detection_classes'][0].astype(np.uint8)
   output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
   output_dict['detection_scores'] = output_dict['detection_scores'][0]
+  if 'detection_masks' in output_dict:
+      output_dict['detection_masks'] = output_dict['detection_masks'][0]
   return output_dict
 
 #-------------------------------------------------------------------------------
@@ -125,7 +123,44 @@ if __name__ == '__main__':
 
         # Actual detection.
         output_dict = run_inference_for_single_image(image_np, detection_graph, sess)
+        count = 0
 
-        print("Num obstacles: ", output_dict['num_detections'])
-        print(output_dict['detection_boxes'])
-        print(output_dict['detection_scores'])
+        # send data to AUDREE
+        for i in range(output_dict['num_detections']):
+            if output_dict['detection_scores'][i] >= MINIMUM_DETECTION_SCORE:
+
+                # get pixel col and row of center of obstacles
+                [row_min, col_min, row_max, col_max] = output_dict['detection_boxes'][i]
+                col = int(np.mean([col_min, col_max]) * image_np.shape[1])
+                row = int(np.mean([row_min, row_max]) * image_np.shape[0])
+
+                # convert col/row to x/y
+                (x, y) = grid.interpolate(col, row)
+
+                # push to buffer
+                audree.add_obstacle(Obstacle.Obstacle(x, y))
+
+                count += 1
+            else:
+                break
+
+        # visualize
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            image_np,
+            output_dict['detection_boxes'],
+            output_dict['detection_classes'],
+            output_dict['detection_scores'],
+            category_index,
+            instance_masks = output_dict.get('detection_masks'),
+            use_normalized_coordinates = True,
+            line_thickness = 5,
+            min_score_thresh = MINIMUM_DETECTION_SCORE
+            )
+        cv2.imshow('Live Feed', cv2.resize(image_np, (800, 600)))
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            cv2.destroyAllWindows()
+            break
+
+        print("Num obstacles: ", count)
+        audree.send_obstacles()
+        

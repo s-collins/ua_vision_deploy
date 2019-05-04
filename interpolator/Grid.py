@@ -72,5 +72,5 @@ class Grid:
 		y_u_v2 = (u2 - u) / (u2 - u1) * y12 + (u - u1) / (u2 - u1) * y22
 		y_u_v = (v2 - v) / (v2 - v1) * y_u_v1 + (v - v1) / (v2 - v1) * y_u_v2	
 
-		return (x_u_v, y_u_v)
+		return (int(x_u_v), int(y_u_v))
 
