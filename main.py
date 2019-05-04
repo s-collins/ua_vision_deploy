@@ -14,6 +14,9 @@ from robot import Robot
 # Configuration
 #-------------------------------------------------------------------------------
 
+# flag to turn visualization on/off
+SHOW_VISUALIZATION = True
+
 # minimum acceptable detection score (to be detected as obstacle)
 MINIMUM_DETECTION_SCORE = 0.90
 
@@ -126,6 +129,7 @@ if __name__ == '__main__':
         count = 0
 
         # send data to AUDREE
+        print(80 * '-')
         for i in range(output_dict['num_detections']):
             if output_dict['detection_scores'][i] >= MINIMUM_DETECTION_SCORE:
 
@@ -136,6 +140,8 @@ if __name__ == '__main__':
 
                 # convert col/row to x/y
                 (x, y) = grid.interpolate(col, row)
+                print('x - ', x)
+                print('y - ', y)
 
                 # push to buffer
                 audree.add_obstacle(Obstacle.Obstacle(x, y))
@@ -145,21 +151,22 @@ if __name__ == '__main__':
                 break
 
         # visualize
-        vis_util.visualize_boxes_and_labels_on_image_array(
-            image_np,
-            output_dict['detection_boxes'],
-            output_dict['detection_classes'],
-            output_dict['detection_scores'],
-            category_index,
-            instance_masks = output_dict.get('detection_masks'),
-            use_normalized_coordinates = True,
-            line_thickness = 5,
-            min_score_thresh = MINIMUM_DETECTION_SCORE
-            )
-        cv2.imshow('Live Feed', cv2.resize(image_np, (800, 600)))
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            cv2.destroyAllWindows()
-            break
+        if SHOW_VISUALIZATION:
+            vis_util.visualize_boxes_and_labels_on_image_array(
+                image_np,
+                output_dict['detection_boxes'],
+                output_dict['detection_classes'],
+                output_dict['detection_scores'],
+                category_index,
+                instance_masks = output_dict.get('detection_masks'),
+                use_normalized_coordinates = True,
+                line_thickness = 5,
+                min_score_thresh = MINIMUM_DETECTION_SCORE
+                )
+            cv2.imshow('Live Feed', cv2.resize(image_np, (800, 600)))
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                cv2.destroyAllWindows()
+                break
 
         print("Num obstacles: ", count)
         audree.send_obstacles()
